@@ -1,8 +1,8 @@
 /*
 	Name 1: Dhruv Bansal
-	Name 2: 
+	Name 2: Carolyn Hoang
 	UTEID 1: db45988
-	UTEID 2: 
+	UTEID 2: ch52677
 */
 #include <stdio.h> /* standard input/output library */
 #include <stdlib.h> /* Standard C Library */
