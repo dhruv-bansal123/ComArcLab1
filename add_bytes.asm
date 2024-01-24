@@ -9,6 +9,7 @@
 ;then store result in 0x3102
 ;check overflow and if overflow, store one in 0x3103
 ;overflow means that if both input msb bits are the same, the output msb bit should also be that
+    .ORIG x3000
     LEA R0, inputs ; load into r0 the location the inputs start
     LDW R0, R0, #0 ; 
     LDB R1, R0, #0 ; load the first operant into R1
@@ -25,12 +26,11 @@
     ADD R5, R5, #1
     
     ADD R5, R5, R1 ; This will tell me if a overflow is possible
-    BRZ overflowpossible
+    BRZ run
     AND R5, R5, #0 ; clear register 5
     STB R5, R0, #3 ; store the output that a overflow is not possible
     HALT
-overflowpossible
-    AND R5, R2, R1 ; this is the bit that the output needs to be
+run    AND R5, R2, R1 ; this is the bit that the output needs to be
     AND R3, R3, R4 ; bit mask the output
     XOR R6, R5, R3 ; this will tell us if there is a overflow or not
     RSHFL R6, R6, #7 ; move the overflow to the LSB
