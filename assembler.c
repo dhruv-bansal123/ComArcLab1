@@ -85,104 +85,135 @@ int toNum( char * pStr )
    }
 }
 
+char codes[][6] ={ 
+    "add\0\0\0", 
+    "and\0\0\0", 
+    "halt\0\0", 
+    "jmp\0\0\0", 
+    "jsr\0\0\0", 
+    "jsrr\0\0", 
+    "ldb\0\0\0", 
+    "ldw\0\0\0", 
+    "lea\0\0\0", 
+    "nop\0\0\0", 
+    "not\0\0\0", 
+    "ret\0\0\0", 
+    "lshf\0\0", 
+    "rshfl\0", 
+    "rti\0\0\0", 
+    "stb\0\0\0", 
+    "stw\0\0\0", 
+    "trap\0\0", 
+    "xor\0\0\0", 
+    "br\0\0\0\0", 
+    "brn\0\0\0", 
+    "brz\0\0\0", 
+    "brp\0\0\0", 
+    "brzp\0\0", 
+    "brnp\0\0", 
+    "brnz\0\0", 
+    "brnzp\0"
+    };
+  //27 codes
+int isOpcode (char * lPtr){
+  for (int i = 0; i<27; i++){
+    if (0 == strcmp(lPtr, codes[i]))
+      return i;
+  }
+  return -1;
+}
 
 #define MAX_LINE_LENGTH 255
 	enum{
-	   DONE, OK, EMPTY_LINE
+	  DONE, OK, EMPTY_LINE
 	};
 
-	int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char ** pOpcode, char ** pArg1, char ** pArg2, char ** pArg3, char ** pArg4){
-	   char * lRet, * lPtr;
-	   int i;
-	   if( !fgets( pLine, MAX_LINE_LENGTH, pInfile ) ) return( DONE );
-	   for( i = 0; i < strlen( pLine ); i++ ) pLine[i] = tolower( pLine[i] );
-	   
-           /* convert entire line to lowercase */
-	   *pLabel = *pOpcode = *pArg1 = *pArg2 = *pArg3 = *pArg4 = pLine + strlen(pLine);
+int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char ** pOpcode, char ** pArg1, char ** pArg2, char ** pArg3, char ** pArg4){
+  char * lRet, * lPtr;
+  int i;
+  if( !fgets( pLine, MAX_LINE_LENGTH, pInfile ) ) return( DONE );
+  for( i = 0; i < strlen( pLine ); i++ ) pLine[i] = tolower( pLine[i] );
+  
+  /* convert entire line to lowercase */
+  *pLabel = *pOpcode = *pArg1 = *pArg2 = *pArg3 = *pArg4 = pLine + strlen(pLine);
 
-	   /* ignore the comments */
-	   lPtr = pLine;
+  /* ignore the comments */
+  lPtr = pLine;
 
-	   while( *lPtr != ';' && *lPtr != '\0' &&
-	   *lPtr != '\n' ) 
-		lPtr++;
+  while( *lPtr != ';' && *lPtr != '\0' && *lPtr != '\n' ) lPtr++;
 
-	   *lPtr = '\0';
-	   if( !(lPtr = strtok( pLine, "\t\n ," ) ) ) 
-		return( EMPTY_LINE );
+  *lPtr = '\0';
 
-	   if( isOpcode( lPtr ) == -1 && lPtr[0] != '.' ) /* found a label */
-	   {
-		*pLabel = lPtr;
-		if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
-	   }
-	   
-           *pOpcode = lPtr;
+  if( !(lPtr = strtok( pLine, "\t\n ," ) ) ) 
+    return( EMPTY_LINE );
 
-	   if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
-	   
-           *pArg1 = lPtr;
-	   
-           if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
+  if( isOpcode( lPtr ) == -1 && lPtr[0] != '.' ) /* found a label */{
+    *pLabel = lPtr;
+    if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
+  }
+  
+  *pOpcode = lPtr;
 
-	   *pArg2 = lPtr;
-	   if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
+  if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
+  
+  *pArg1 = lPtr;
+  
+  if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
 
-	   *pArg3 = lPtr;
+  *pArg2 = lPtr;
+  if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
 
-	   if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
+  *pArg3 = lPtr;
 
-	   *pArg4 = lPtr;
+  if( !( lPtr = strtok( NULL, "\t\n ," ) ) ) return( OK );
 
-	   return( OK );
-	}
+  *pArg4 = lPtr;
 
-	/* Note: MAX_LINE_LENGTH, OK, EMPTY_LINE, and DONE are defined values */
+  return( OK );
+}
 
-    /*
-    func() 
-	{
-	   char lLine[MAX_LINE_LENGTH + 1], *lLabel, *lOpcode, *lArg1,
-	        *lArg2, *lArg3, *lArg4;
-
-	   int lRet;
-
-	   FILE * lInfile;
-
-	   lInfile = fopen( "data.in", "r" );
-
-	   do
-	   {
-		lRet = readAndParse( lInfile, lLine, &lLabel,
-			&lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
-		if( lRet != DONE && lRet != EMPTY_LINE )
-		{
-			...
-		}
-	   } while( lRet != DONE );
-	}
-    */
-
-FILE* infile = NULL;
+FILE* lInfile = NULL;
 FILE* outfile = NULL;
 
 int main(int argc, char* argv[]) {
 	
-     /* open the source file */
-     infile = fopen(argv[1], "r");
-     outfile = fopen(argv[2], "w");
+  /* open the source file */
+  lInfile = fopen(argv[1], "r");
+  outfile = fopen(argv[2], "w");
 		 
-     if (!infile) {
-       printf("Error: Cannot open file %s\n", argv[1]);
-       exit(4);
-		 }
-     if (!outfile) {
-       printf("Error: Cannot open file %s\n", argv[2]);
-       exit(4);
-     }
+  if (!lInfile) {
+    printf("Error: Cannot open file %s\n", argv[1]);
+    exit(4);
+	}
 
-     /* Do stuff with files */
+  if (!outfile) {
+    printf("Error: Cannot open file %s\n", argv[2]);
+    exit(4);
+  }
 
-     fclose(infile);
-     fclose(outfile);
+
+
+  /* Do stuff with files */
+  char lLine[MAX_LINE_LENGTH + 1], *lLabel, *lOpcode, *lArg1, *lArg2, *lArg3, *lArg4;
+  int lRet;
+
+	do{
+		lRet = readAndParse( lInfile, lLine, &lLabel, &lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
+		if( lRet != DONE && lRet != EMPTY_LINE ){
+      //implement code to do stuff later
+        printf("%s", lLabel);
+        printf(" %s", lOpcode);
+        printf(" %s", lArg1);
+        printf(" %s", lArg2);
+        printf(" %s", lArg3);
+        printf(" %s\n", lArg4);
+		}
+	} while( lRet != DONE );
+
+
+
+
+  //close file at the end
+  fclose(lInfile);
+  fclose(outfile);
 }
