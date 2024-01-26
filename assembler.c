@@ -197,20 +197,56 @@ int main(int argc, char* argv[]) {
   char lLine[MAX_LINE_LENGTH + 1], *lLabel, *lOpcode, *lArg1, *lArg2, *lArg3, *lArg4;
   int lRet;
 
+
+  //first pass - generate the symbol table
+  int symbol_count = 0;
+  int start_address = 0;
+  int line_counter = 0;
 	do{
 		lRet = readAndParse( lInfile, lLine, &lLabel, &lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
 		if( lRet != DONE && lRet != EMPTY_LINE ){
       //implement code to do stuff later
+        /*
         printf("%s", lLabel);
         printf(" %s", lOpcode);
         printf(" %s", lArg1);
         printf(" %s", lArg2);
         printf(" %s", lArg3);
         printf(" %s\n", lArg4);
-		}
+        */
+      if (0 == strcmp(lOpcode, ".orig\0")){
+        start_address = toNum(lArg1);
+        line_counter-=2;
+      }
+
+      if (0 != strcmp(lLabel, "\0")){
+        strcpy(symbolTable[symbol_count].label, lLabel);
+        symbolTable[symbol_count].address = start_address + line_counter;
+        symbol_count++;
+      }
+
+      line_counter+=2;
+    }
 	} while( lRet != DONE );
+  
+  /*
+  for (int i = 0; i<symbol_count; i++){
+    printf("%d ", symbolTable[i].address);
+    printf("%s\n", symbolTable[i].label);
+  }
+  */
 
+  //rewind the input doc
+  rewind(lInfile);
 
+  //second pass - write the actual output
+	do{
+		lRet = readAndParse( lInfile, lLine, &lLabel, &lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
+		if( lRet != DONE && lRet != EMPTY_LINE ){
+      //implement code to do stuff later
+      
+    }
+	} while( lRet != DONE );
 
 
   //close file at the end
