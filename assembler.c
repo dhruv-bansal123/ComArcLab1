@@ -113,8 +113,11 @@ char codes[][6] ={
     "brnp\0\0", 
     "brnz\0\0", 
     "brnzp\0"
+    ".orig\0",
+    ".fill\0",
+    ".end\0\0",
     };
-  //27 codes
+  //30 codes
 int isOpcode (char * lPtr){
   for (int i = 0; i<27; i++){
     if (0 == strcmp(lPtr, codes[i]))
