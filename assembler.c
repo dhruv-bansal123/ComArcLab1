@@ -189,18 +189,18 @@ void add(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4 )
   char dest = Arg1[1] - 48;
   char source1 = Arg2[1] - 48;
   char source2;
-
+  int output;
   if ('r' == Arg3[0])
   {
     source2 = Arg3[1] - 48;
+    output = code << 12 | (dest << 9) | (source1 << 6) | (source2);
   }
   else
   {
-    source2 = toNum(Arg3);
-    source2 += 32;
+    int imme = toNum(Arg3);
+    output = code << 12 | (dest << 9) | (source1 << 6) | (1<<5) | (imme & 0x1F);
   }
 
-  int output = code << 12 | (dest << 9) | (source1 << 6) | (source2);
   fprintf(outfile, "0x%.4X\n", output);
 
 }
@@ -211,18 +211,17 @@ void and_(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
   char src2;
-
+  int output;
   if ('r' == Arg3[0])
   {
     src2 = Arg3[1] - 48;
+    output = code << 12 | (dst << 9) | (src1 << 6) | (src2);
   }
   else
   {
-    src2 = toNum(Arg3);
-    src2 += 32;
+    int imme = toNum(Arg3);
+    output = code << 12 | (dst << 9) | (src1 << 6) | (1<<5) | (imme & 0x1F);
   }
-
-  int output = code << 12 | (dst << 9) | (src1 << 6) | (src2);
   fprintf(outfile, "0x%.4X\n", output);
 }
 
@@ -271,7 +270,7 @@ void ldb(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char offset = toNum(Arg3);
 
 
-  int output = code << 12 | (dst << 9) | (baseR << 6) | offset;
+  int output = code << 12 | (dst << 9) | (baseR << 6) | (offset & 0x3F) >> 1;
   fprintf(outfile, "0x%.4X\n", output);
 }
 
@@ -321,8 +320,8 @@ void ldw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int curr
   char code = 6;
   char dest = Arg1[1] - 48;
   char source1 = Arg2[1] - 48;
-  int offset = toNum(Arg3) + 2;
-  int output = code<<12 | (dest<<9) | (source1 << 6) | (offset >> 1);
+  int offset = toNum(Arg3);
+  int output = code<<12 | (dest<<9) | (source1 << 6) | ((offset & 0x3F) >> 1);
   fprintf(outfile, "0x%.4X\n", output);
 }
 
@@ -357,7 +356,7 @@ void xor_(FILE* outfile, char* Arg1, char* Arg2, char* Arg3){
     char source2 = Arg3[1] - 48;
     output = code<<12 | (dest<<9) | (source1 << 6) | source2;  
   }else{
-    output = code<<12 | (dest<<9) | (source1 << 6) | 0x20 | (toNum(Arg3) & 0x3F);
+    output = code<<12 | (dest<<9) | (source1 << 6) | 0x20 | (toNum(Arg3) & 0x1F);
   }
   fprintf(outfile, "0x%.4X\n", output);
 }
