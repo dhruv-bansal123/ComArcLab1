@@ -202,25 +202,59 @@ void ldw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int curr
   char code = 6;
   char dest = Arg1[1] - 48;
   char source1 = Arg2[1] - 48;
-  int offset = toNum(Arg3)/2;
-  int output = code<<12 | (dest<<9) | (source1 << 6) | (offset);
+  int offset = toNum(Arg3) + 2;
+  int output = code<<12 | (dest<<9) | (source1 << 6) | (offset >> 1);
   fprintf(outfile, "0x%.4X\n", output);
 }
 void lea(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int current_address){
   char code = 14;
   char dest = Arg1[1] - 48;
-  char source1 = Arg2[1] - 48;
   int k = -1;
   for (int i =0; i<symbol_count; i++){
-    if (0 == strcmp(Arg3, symbolTable[i].label)){
+    if (0 == strcmp(Arg2, symbolTable[i].label)){
       k = i;
     }
   }
-  int offset = (symbolTable[k].address - current_address)/2;
+  int offset = ((symbolTable[k].address - current_address)/2) & 0x1FF;
   int output = code<<12 | (dest<<9) | (offset);
   fprintf(outfile, "0x%.4X\n", output);
 }
-
+void not(FILE* outfile, char* Arg1, char* Arg2){
+  char code = 9;
+  char dest = Arg1[1] - 48;
+  char source1 = Arg2[1] - 48;
+  int output = code<<12 | (dest<<9) | (source1 << 6) | 0x3F;
+  fprintf(outfile, "0x%.4X\n", output);
+}
+void xor(FILE* outfile, char* Arg1, char* Arg2, char* Arg3){
+  char code = 9;
+  char dest = Arg1[1] - 48;
+  char source1 = Arg2[1] - 48;
+  int output = 0;
+  if('r' == Arg3[0]){
+    char source2 = Arg3[1] - 48;
+    output = code<<12 | (dest<<9) | (source1 << 6) | source2;  
+  }else{
+    output = code<<12 | (dest<<9) | (source1 << 6) | 0x20 | (toNum(Arg3) & 0x3F);
+  }
+  fprintf(outfile, "0x%.4X\n", output);
+}
+void stb(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int current_address){
+  char code = 3;
+  char dest = Arg1[1] - 48;
+  char source1 = Arg2[1] - 48;
+  int offset = toNum(Arg3);
+  int output = code<<12 | (dest<<9) | (source1 << 6) | (offset);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+void stw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int current_address){
+  char code = 7;
+  char dest = Arg1[1] - 48;
+  char source1 = Arg2[1] - 48;
+  int offset = toNum(Arg3) + 2;
+  int output = code<<12 | (dest<<9) | (source1 << 6) | (offset >> 1);
+  fprintf(outfile, "0x%.4X\n", output);
+}
 int main(int argc, char* argv[]) {
 	
   /* open the source file */
@@ -298,23 +332,23 @@ int main(int argc, char* argv[]) {
       switch (op_result){
         case 0: add(outfile, lArg1, lArg2, lArg3, lArg4); break;// 1/2 work
         case 1: //and(); break;
-        case 2: fprintf(outfile, "0xF019\n"); break;//d works
+        case 2: fprintf(outfile, "0xF025\n"); break;//d works
         case 3: //jmp(); break;
         case 4: //jsr(); break;
         case 5: //jsrr(); break;
         case 6: //ldb(); break;
         case 7: ldw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
-        case 8: lea(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d 
-        case 9: //nop(); break;//d
-        case 10: //not(); break;//d
+        case 8: lea(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
+        case 9: fprintf(outfile, "0x0000\n"); break;//d works
+        case 10: not(outfile, lArg1, lArg2); break;//d works
         case 11: //ret(); break;
         case 12: //lshf(); break;
         case 13: //rshfl(); break;
         case 14: //rti(); break;
-        case 15: //stb(); break;//d
-        case 16: //stw(); break;//d
-        case 17: //trap(); break;//d
-        case 18: //xor(); break;//d
+        case 15: stb(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
+        case 16: stw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
+        case 17: fprintf(outfile, "0x%.4X\n", ( 0xF000 | (toNum(lArg1) & 0xFF) )); break;//d works
+        case 18: xor(outfile, lArg1, lArg2, lArg3); break;//d works
         case 19: //br(); break;
         case 20: //brn(); break;
         case 21: //brz(); break;
