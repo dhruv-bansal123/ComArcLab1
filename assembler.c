@@ -4,10 +4,11 @@
 	UTEID 1: db45988
 	UTEID 2: ch52677
 */
-#include <stdio.h> /* standard input/output library */
+
+#include <stdio.h>  /* standard input/output library */
 #include <stdlib.h> /* Standard C Library */
 #include <string.h> /* String operations library */
-#include <ctype.h> /* Library for useful character operations */
+#include <ctype.h>  /* Library for useful character operations */
 #include <limits.h> /* Library for definitions of common variable type characteristics */
 
 #define MAX_LABEL_LEN 20
@@ -195,6 +196,7 @@ void add(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4 )
   else
   {
     source2 = toNum(Arg3);
+    source2 += 32;
   }
 
   int output = code << 12 | (dest << 9) | (source1 << 6) | (source2);
@@ -216,6 +218,7 @@ void and_(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   else
   {
     src2 = toNum(Arg3);
+    src2 += 32;
   }
 
   int output = code << 12 | (dst << 9) | (src1 << 6) | (src2);
@@ -224,19 +227,29 @@ void and_(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
 
 void jmp(FILE *outfile, char *Arg1)
 {
-  char code = 14;
+  char code = 12;
   char baseR = Arg1[1] - 48;
 
   int output = code << 12 | (baseR << 6);
   fprintf(outfile, "0x%.4X\n", output);
 }
 
-void jsr(FILE *outfile, char *Arg1)
+void jsr(FILE *outfile, char *Arg1, int current_address)
 {
   char code = 4;
-  char offset = toNum(Arg1);
+  char *label = Arg1;
+  int offset;
 
-  int output = code << 12 | (2048 + offset);
+  for (int i = 0; i < symbol_count; i++) 
+  {
+    if (0 == strcmp(symbolTable[i].label, label)) 
+    {
+      offset = (symbolTable[i].address - current_address)/2 & 0x7FF;
+      break;
+    }
+  }
+
+  int output = code << 12 | (offset + 2048);
   fprintf(outfile, "0x%.4X\n", output);
 }
 
@@ -256,20 +269,21 @@ void ldb(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char baseR = Arg2[1] - 48;
   char offset = toNum(Arg3);
 
+
   int output = code << 12 | (dst << 9) | (baseR << 6) | offset;
   fprintf(outfile, "0x%.4X\n", output);
 }
 
 void ret(FILE *outfile)
 {
-  char code = 14;
+  char code = 12;
 
   int output = code << 12 | (7 << 6);
   fprintf(outfile, "0x%.4X\n", output);
 }
 
 void lshf(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
-  char code = 15;
+  char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
   char amt = toNum(Arg3);
@@ -279,7 +293,7 @@ void lshf(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
 }
 
 void rshfl(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
-  char code = 15;
+  char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
   char amt = toNum(Arg3);
@@ -290,7 +304,7 @@ void rshfl(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
 
 // Add this to the case statement later?
 void rshfla(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
-  char code = 15;
+  char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
   char amt = toNum(Arg3);
@@ -456,7 +470,7 @@ int main(int argc, char* argv[]) {
         case 1: and_(outfile, lArg1, lArg2, lArg3, lArg4); break;
         case 2: fprintf(outfile, "0xF025\n"); break;//d works
         case 3: jmp(outfile, lArg1); break;
-        case 4: jsr(outfile, lArg1); break;
+        case 4: jsr(outfile, lArg1, current_address); break;
         case 5: jsrr(outfile, lArg1); break;
         case 6: ldb(outfile, lArg1, lArg2, lArg3, lArg4); break;
         case 7: ldw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
