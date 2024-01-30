@@ -103,27 +103,28 @@ char codes[][6] ={
     "ret\0\0\0",  //11
     "lshf\0\0",   //12
     "rshfl\0",    //13
-    "rti\0\0\0",  //14
-    "stb\0\0\0",  //15
-    "stw\0\0\0",  //16
-    "trap\0\0",   //17
-    "xor\0\0\0",  //18
-    "br\0\0\0\0", //19
-    "brn\0\0\0",  //20
-    "brz\0\0\0",  //21
-    "brp\0\0\0",  //22
-    "brzp\0\0",   //23
-    "brnp\0\0",   //24
-    "brnz\0\0",   //25
-    "brnzp\0",    //26
-    ".orig\0",    //27
-    ".fill\0",    //28
-    ".end\0\0",   //29
+    "rshfa\0",    //14
+    "rti\0\0\0",  //15
+    "stb\0\0\0",  //16
+    "stw\0\0\0",  //17
+    "trap\0\0",   //18
+    "xor\0\0\0",  //19
+    "br\0\0\0\0", //20
+    "brn\0\0\0",  //21
+    "brz\0\0\0",  //22
+    "brp\0\0\0",  //23
+    "brzp\0\0",   //24
+    "brnp\0\0",   //25
+    "brnz\0\0",   //26
+    "brnzp\0",    //27
+    ".orig\0",    //28
+    ".fill\0",    //29
+    ".end\0\0",   //30
     };
-  //30 codes
+  //31 codes
   
 int isOpcode (char * lPtr){
-  for (int i = 0; i<30; i++){
+  for (int i = 0; i<31; i++){
     if (0 == strcmp(lPtr, codes[i]))
       return i;
   }
@@ -302,8 +303,7 @@ void rshfl(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
   fprintf(outfile, "0x%.4X\n", output);
 }
 
-// Add this to the case statement later?
-void rshfla(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
+void rshfa(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
   char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
@@ -480,22 +480,23 @@ int main(int argc, char* argv[]) {
         case 11: ret(outfile); break;
         case 12: lshf(outfile, lArg1, lArg2, lArg3, lArg4); break;
         case 13: rshfl(outfile, lArg1, lArg2, lArg3, lArg4); break;
-        case 14: rti(outfile); break;
-        case 15: stb(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
-        case 16: stw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
-        case 17: fprintf(outfile, "0x%.4X\n", ( 0xF000 | (toNum(lArg1) & 0xFF) )); break;//d works
-        case 18: xor_(outfile, lArg1, lArg2, lArg3); break;//d works
-        case 19: br(outfile, 1,1,1, lArg1, current_address); break;//d works
-        case 20: br(outfile, 1,0,0, lArg1, current_address); break;//d works
-        case 21: br(outfile, 0,1,0, lArg1, current_address); break;//d works
-        case 22: br(outfile, 0,0,1, lArg1, current_address); break;//d works
-        case 23: br(outfile, 0,1,1, lArg1, current_address); break;//d works
-        case 24: br(outfile, 1,0,1, lArg1, current_address); break;//d works
-        case 25: br(outfile, 1,1,0, lArg1, current_address); break;//d works
-        case 26: br(outfile, 1,1,1, lArg1, current_address); break;//d works
-        case 27: fprintf(outfile, "0x%.4X\n", toNum(lArg1)); break; //work
+        case 14: rshfa(outfile, lArg1, lArg2, lArg3, lArg4); break;
+        case 15: rti(outfile); break;
+        case 16: stb(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
+        case 17: stw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
+        case 18: fprintf(outfile, "0x%.4X\n", ( 0xF000 | (toNum(lArg1) & 0xFF) )); break;//d works
+        case 19: xor_(outfile, lArg1, lArg2, lArg3); break;//d works
+        case 20: br(outfile, 1,1,1, lArg1, current_address); break;//d works
+        case 21: br(outfile, 1,0,0, lArg1, current_address); break;//d works
+        case 22: br(outfile, 0,1,0, lArg1, current_address); break;//d works
+        case 23: br(outfile, 0,0,1, lArg1, current_address); break;//d works
+        case 24: br(outfile, 0,1,1, lArg1, current_address); break;//d works
+        case 25: br(outfile, 1,0,1, lArg1, current_address); break;//d works
+        case 26: br(outfile, 1,1,0, lArg1, current_address); break;//d works
+        case 27: br(outfile, 1,1,1, lArg1, current_address); break;//d works
         case 28: fprintf(outfile, "0x%.4X\n", toNum(lArg1)); break; //work
-        case 29: end_found = 1; break;
+        case 29: fprintf(outfile, "0x%.4X\n", toNum(lArg1)); break; //work
+        case 30: end_found = 1; break;
       }
 
       current_address+=2;

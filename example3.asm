@@ -10,7 +10,8 @@ jsrr r3
 ldb r4, r2, #10
 lshf r2, r3, #3
 rshfl r2, r3, #7
-;rshfa r2, r3, #7
+rshfa r2, r3, #7
+add r2, r3, #5
 rti
 HALT
 .fill x3000
