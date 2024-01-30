@@ -12,13 +12,14 @@
 
 #define MAX_LABEL_LEN 20
 #define MAX_SYMBOLS 255
+
 int symbol_count = 0;
+
 typedef struct {
 	int address;
 	char label[MAX_LABEL_LEN + 1];	/* Question for the reader: Why do we need to add 1? */ // because we need to append a null character to the end of each symbol
 } TableEntry;
 TableEntry symbolTable[MAX_SYMBOLS];
-
 
 int toNum( char * pStr )
 {
@@ -87,38 +88,39 @@ int toNum( char * pStr )
 }
 
 char codes[][6] ={ 
-    "add\0\0\0", //0
-    "and\0\0\0", //1
-    "halt\0\0", //2
-    "jmp\0\0\0", //3
-    "jsr\0\0\0", //4
-    "jsrr\0\0", //5
-    "ldb\0\0\0", //6
-    "ldw\0\0\0", //7
-    "lea\0\0\0", //8
-    "nop\0\0\0", //9
-    "not\0\0\0", //10
-    "ret\0\0\0", //11
-    "lshf\0\0", //12
-    "rshfl\0", //13
-    "rti\0\0\0", //14
-    "stb\0\0\0", //15
-    "stw\0\0\0", //16
-    "trap\0\0", //17
-    "xor\0\0\0", //18
+    "add\0\0\0",  //0
+    "and\0\0\0",  //1
+    "halt\0\0",   //2
+    "jmp\0\0\0",  //3
+    "jsr\0\0\0",  //4
+    "jsrr\0\0",   //5
+    "ldb\0\0\0",  //6
+    "ldw\0\0\0",  //7
+    "lea\0\0\0",  //8
+    "nop\0\0\0",  //9
+    "not\0\0\0",  //10
+    "ret\0\0\0",  //11
+    "lshf\0\0",   //12
+    "rshfl\0",    //13
+    "rti\0\0\0",  //14
+    "stb\0\0\0",  //15
+    "stw\0\0\0",  //16
+    "trap\0\0",   //17
+    "xor\0\0\0",  //18
     "br\0\0\0\0", //19
-    "brn\0\0\0", //20
-    "brz\0\0\0", //21
-    "brp\0\0\0", //22
-    "brzp\0\0", //23
-    "brnp\0\0", //24
-    "brnz\0\0", //25
-    "brnzp\0",//26
-    ".orig\0",//27
-    ".fill\0",//28
-    ".end\0\0",//29
+    "brn\0\0\0",  //20
+    "brz\0\0\0",  //21
+    "brp\0\0\0",  //22
+    "brzp\0\0",   //23
+    "brnp\0\0",   //24
+    "brnz\0\0",   //25
+    "brnzp\0",    //26
+    ".orig\0",    //27
+    ".fill\0",    //28
+    ".end\0\0",   //29
     };
   //30 codes
+  
 int isOpcode (char * lPtr){
   for (int i = 0; i<30; i++){
     if (0 == strcmp(lPtr, codes[i]))
@@ -179,25 +181,128 @@ int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char ** pOpcode,
 FILE* lInfile = NULL;
 FILE* outfile = NULL;
 
-void add(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4 ){
+void add(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4 )
+{
   char code = 1;
   char dest = Arg1[1] - 48;
   char source1 = Arg2[1] - 48;
-  if('r' == Arg3[0]){
-    char source2 = Arg3[1] - 48;
-    int output = code<<12 | (dest<<9) | (source1 << 6) | (source2);
-    fprintf(outfile, "0x%.4X\n", output);
-  } else{
-    // int immediate = toNum(Arg3);
-    // convert source to a int and combine with the immediate
-    // int source = toNum(Arg2);
-    // place in destination
-    // combine into one long hex and output to the file
-    // "0x" + 1 + 
-    // Indicate with bit 5, whether or not 
-    // might be easiest to create a 16 bit thing and have place holders, break everything down and insert by bit depending on the hexcode 
+  char source2;
+
+  if ('r' == Arg3[0])
+  {
+    source2 = Arg3[1] - 48;
   }
+  else
+  {
+    source2 = toNum(Arg3);
+  }
+
+  int output = code << 12 | (dest << 9) | (source1 << 6) | (source2);
+  fprintf(outfile, "0x%.4X\n", output);
+
 }
+
+void and_(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
+{
+  char code = 5;
+  char dst = Arg1[1] - 48;
+  char src1 = Arg2[1] - 48;
+  char src2;
+
+  if ('r' == Arg3[0])
+  {
+    src2 = Arg3[1] - 48;
+  }
+  else
+  {
+    src2 = toNum(Arg3);
+  }
+
+  int output = code << 12 | (dst << 9) | (src1 << 6) | (src2);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void jmp(FILE *outfile, char *Arg1)
+{
+  char code = 14;
+  char baseR = Arg1[1] - 48;
+
+  int output = code << 12 | (baseR << 6);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void jsr(FILE *outfile, char *Arg1)
+{
+  char code = 4;
+  char offset = toNum(Arg1);
+
+  int output = code << 12 | (2048 + offset);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void jsrr(FILE *outfile, char *Arg1)
+{
+  char code = 4;
+  char baseR = Arg1[1] - 48;
+  
+  int output = code << 12 | (baseR << 6);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void ldb(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
+{
+  char code = 2;
+  char dst = Arg1[1] - 48;
+  char baseR = Arg2[1] - 48;
+  char offset = toNum(Arg3);
+
+  int output = code << 12 | (dst << 9) | (baseR << 6) | offset;
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void ret(FILE *outfile)
+{
+  char code = 14;
+
+  int output = code << 12 | (7 << 6);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void lshf(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
+  char code = 15;
+  char dst = Arg1[1] - 48;
+  char src1 = Arg2[1] - 48;
+  char amt = toNum(Arg3);
+
+  int output = code << 12 | (dst << 9) | (src1 << 6) | amt;
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void rshfl(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
+  char code = 15;
+  char dst = Arg1[1] - 48;
+  char src1 = Arg2[1] - 48;
+  char amt = toNum(Arg3);
+
+  int output = code << 12 | (dst << 9) | (src1 << 6) | (amt + 16);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+// Add this to the case statement later?
+void rshfla(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4) {
+  char code = 15;
+  char dst = Arg1[1] - 48;
+  char src1 = Arg2[1] - 48;
+  char amt = toNum(Arg3);
+
+  int output = code << 12 | (dst << 9) | (src1 << 6) | (amt + 48);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
+void rti(FILE * outfile) {
+  fprintf(outfile, "0x%.4X\n", (8 << 12));
+}
+
 void ldw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int current_address){
   char code = 6;
   char dest = Arg1[1] - 48;
@@ -206,6 +311,7 @@ void ldw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int curr
   int output = code<<12 | (dest<<9) | (source1 << 6) | (offset >> 1);
   fprintf(outfile, "0x%.4X\n", output);
 }
+
 void lea(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int current_address){
   char code = 14;
   char dest = Arg1[1] - 48;
@@ -219,14 +325,16 @@ void lea(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int curr
   int output = code<<12 | (dest<<9) | (offset);
   fprintf(outfile, "0x%.4X\n", output);
 }
-void not(FILE* outfile, char* Arg1, char* Arg2){
+
+void not_(FILE* outfile, char* Arg1, char* Arg2){
   char code = 9;
   char dest = Arg1[1] - 48;
   char source1 = Arg2[1] - 48;
   int output = code<<12 | (dest<<9) | (source1 << 6) | 0x3F;
   fprintf(outfile, "0x%.4X\n", output);
 }
-void xor(FILE* outfile, char* Arg1, char* Arg2, char* Arg3){
+
+void xor_(FILE* outfile, char* Arg1, char* Arg2, char* Arg3){
   char code = 9;
   char dest = Arg1[1] - 48;
   char source1 = Arg2[1] - 48;
@@ -239,6 +347,7 @@ void xor(FILE* outfile, char* Arg1, char* Arg2, char* Arg3){
   }
   fprintf(outfile, "0x%.4X\n", output);
 }
+
 void stb(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int current_address){
   char code = 3;
   char dest = Arg1[1] - 48;
@@ -247,6 +356,7 @@ void stb(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int curr
   int output = code<<12 | (dest<<9) | (source1 << 6) | (offset);
   fprintf(outfile, "0x%.4X\n", output);
 }
+
 void stw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int current_address){
   char code = 7;
   char dest = Arg1[1] - 48;
@@ -255,6 +365,7 @@ void stw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int curr
   int output = code<<12 | (dest<<9) | (source1 << 6) | (offset >> 1);
   fprintf(outfile, "0x%.4X\n", output);
 }
+
 void br(FILE* outfile, int n, int z, int p, char* Arg1, int current_address){
   char code = 0;
   int k = -1;
@@ -285,11 +396,9 @@ int main(int argc, char* argv[]) {
   }
 
 
-
   /* Do stuff with files */
   char lLine[MAX_LINE_LENGTH + 1], *lLabel, *lOpcode, *lArg1, *lArg2, *lArg3, *lArg4;
   int lRet;
-
 
   //first pass - generate the symbol table
   int start_address = 0;
@@ -343,25 +452,25 @@ int main(int argc, char* argv[]) {
       } 
       int op_result = isOpcode(lOpcode);
       switch (op_result){
-        case 0: add(outfile, lArg1, lArg2, lArg3, lArg4); break;// 1/2 work
-        case 1: //and(); break;
+        case 0: add(outfile, lArg1, lArg2, lArg3, lArg4); break; // 1/2 work
+        case 1: and_(outfile, lArg1, lArg2, lArg3, lArg4); break;
         case 2: fprintf(outfile, "0xF025\n"); break;//d works
-        case 3: //jmp(); break;
-        case 4: //jsr(); break;
-        case 5: //jsrr(); break;
-        case 6: //ldb(); break;
+        case 3: jmp(outfile, lArg1); break;
+        case 4: jsr(outfile, lArg1); break;
+        case 5: jsrr(outfile, lArg1); break;
+        case 6: ldb(outfile, lArg1, lArg2, lArg3, lArg4); break;
         case 7: ldw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
         case 8: lea(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
         case 9: fprintf(outfile, "0x0000\n"); break;//d works
-        case 10: not(outfile, lArg1, lArg2); break;//d works
-        case 11: //ret(); break;
-        case 12: //lshf(); break;
-        case 13: //rshfl(); break;
-        case 14: //rti(); break;
+        case 10: not_(outfile, lArg1, lArg2); break;//d works
+        case 11: ret(outfile); break;
+        case 12: lshf(outfile, lArg1, lArg2, lArg3, lArg4); break;
+        case 13: rshfl(outfile, lArg1, lArg2, lArg3, lArg4); break;
+        case 14: rti(outfile); break;
         case 15: stb(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
         case 16: stw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
         case 17: fprintf(outfile, "0x%.4X\n", ( 0xF000 | (toNum(lArg1) & 0xFF) )); break;//d works
-        case 18: xor(outfile, lArg1, lArg2, lArg3); break;//d works
+        case 18: xor_(outfile, lArg1, lArg2, lArg3); break;//d works
         case 19: br(outfile, 1,1,1, lArg1, current_address); break;//d works
         case 20: br(outfile, 1,0,0, lArg1, current_address); break;//d works
         case 21: br(outfile, 0,1,0, lArg1, current_address); break;//d works
@@ -379,7 +488,6 @@ int main(int argc, char* argv[]) {
 
     }
 	} while(0 == end_found);
-
 
   //close file at the end
   fclose(lInfile);
