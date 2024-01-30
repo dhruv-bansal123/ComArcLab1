@@ -255,6 +255,19 @@ void stw(FILE* outfile, char* Arg1, char* Arg2, char* Arg3, char* Arg4, int curr
   int output = code<<12 | (dest<<9) | (source1 << 6) | (offset >> 1);
   fprintf(outfile, "0x%.4X\n", output);
 }
+void br(FILE* outfile, int n, int z, int p, char* Arg1, int current_address){
+  char code = 0;
+  int k = -1;
+  for (int i =0; i<symbol_count; i++){
+    if (0 == strcmp(Arg1, symbolTable[i].label)){
+      k = i;
+    }
+  }
+  int offset = ((symbolTable[k].address - current_address)/2) & 0x1FF;
+  int output = code<<12 | (n<<11) | (z<<10) | (p<<9) | (offset);
+  fprintf(outfile, "0x%.4X\n", output);
+}
+
 int main(int argc, char* argv[]) {
 	
   /* open the source file */
@@ -349,14 +362,14 @@ int main(int argc, char* argv[]) {
         case 16: stw(outfile, lArg1, lArg2, lArg3, lArg4, current_address); break;//d works
         case 17: fprintf(outfile, "0x%.4X\n", ( 0xF000 | (toNum(lArg1) & 0xFF) )); break;//d works
         case 18: xor(outfile, lArg1, lArg2, lArg3); break;//d works
-        case 19: //br(); break;
-        case 20: //brn(); break;
-        case 21: //brz(); break;
-        case 22: //brp(); break;
-        case 23: //brzp(); break;//d
-        case 24: //brnp(); break;//d
-        case 25: //brnz(); break;//d
-        case 26: //brnzp(); break;//d
+        case 19: br(outfile, 1,1,1, lArg1, current_address); break;//d works
+        case 20: br(outfile, 1,0,0, lArg1, current_address); break;//d works
+        case 21: br(outfile, 0,1,0, lArg1, current_address); break;//d works
+        case 22: br(outfile, 0,0,1, lArg1, current_address); break;//d works
+        case 23: br(outfile, 0,1,1, lArg1, current_address); break;//d works
+        case 24: br(outfile, 1,0,1, lArg1, current_address); break;//d works
+        case 25: br(outfile, 1,1,0, lArg1, current_address); break;//d works
+        case 26: br(outfile, 1,1,1, lArg1, current_address); break;//d works
         case 27: fprintf(outfile, "0x%.4X\n", toNum(lArg1)); break; //work
         case 28: fprintf(outfile, "0x%.4X\n", toNum(lArg1)); break; //work
         case 29: end_found = 1; break;

@@ -12,6 +12,14 @@ trap x21
 trap x4
 stb r1, r1, #12
 stw r1, r1, #2
+BR a
+BRz A
+BRp a
+BRN A
+BRZP a
+BRNP A
+BRNZ a
+BRNZP A
 HALT
 .fill x3000
 .end
