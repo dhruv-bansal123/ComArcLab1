@@ -18,8 +18,8 @@ D   JMP R7
     JSR D 
     JSR A
     JSRR R6
-E   LDB R3, R3, #-7     ; issues with negative
-    LDW R5, R5, #-4     ; issues with negative
+E   LDB R3, R3, #-7
+    LDW R5, R5, #-4
     LEA R6, GOT
 F   NOT R2, R2
     RET
@@ -27,8 +27,8 @@ F   NOT R2, R2
     LSHF R1, R4, #8
     RSHFL R1, R4, #8
     RSHFA R1, R4, #8
-G   STB R4, R4,  #-3    ; issues with negative
-    STW R2, R2, #-8     ; issues with negative
+G   STB R4, R4,  #-3
+    STW R2, R2, #-8
     TRAP x1
     TRAP x6
     TRAP x12
