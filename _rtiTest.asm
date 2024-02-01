@@ -1,0 +1,6 @@
+.ORIG x3200
+
+RTI
+
+HALT
+.END

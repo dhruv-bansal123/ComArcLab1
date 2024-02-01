@@ -1,0 +1,18 @@
+.ORIG #4096
+;   JMP only works with registers
+
+JMP R0
+JMP R1
+JMP R2
+JMP R3
+JMP R4
+JMP R5
+JMP R6
+JMP R7
+;   JMP A
+
+RET
+HALT
+;   A .FILL x3000
+
+.END
