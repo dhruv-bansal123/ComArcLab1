@@ -282,7 +282,7 @@ void ldb(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char code = 2;
   char dst = Arg1[1] - 48;
   char baseR = Arg2[1] - 48;
-  char offset = toNum(Arg3);
+  int offset = toNum(Arg3);
 
   int output = code << 12 | (dst << 9) | (baseR << 6) | (offset & 0x3F);
   fprintf(outfile, "0x%.4X\n", output);
@@ -301,7 +301,7 @@ void lshf(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
-  char amt = toNum(Arg3) & 0xF;
+  int amt = toNum(Arg3) & 0xF;
 
   int output = code << 12 | (dst << 9) | (src1 << 6) | amt;
   fprintf(outfile, "0x%.4X\n", output);
@@ -312,7 +312,7 @@ void rshfl(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
-  char amt = toNum(Arg3) & 0xF;
+  int amt = toNum(Arg3) & 0xF;
 
   int output = code << 12 | (dst << 9) | (src1 << 6) | 16 | amt;
   fprintf(outfile, "0x%.4X\n", output);
@@ -323,7 +323,7 @@ void rshfa(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
-  char amt = toNum(Arg3) & 0xF;
+  int amt = toNum(Arg3) & 0xF;
 
   int output = code << 12 | (dst << 9) | (src1 << 6) | 48 | amt;
   fprintf(outfile, "0x%.4X\n", output);

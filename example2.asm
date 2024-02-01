@@ -72,6 +72,8 @@ G   STB R3, R3, #-7
     STB R0, R0, x2
     STW R0, R0, x-10
     STB R0, R0, x-11
+    STW R1, R1, x-20
+    STB R1, R1, x-20
     TRAP x1
     TRAP x6
     TRAP x12
@@ -81,7 +83,9 @@ I   XOR R4, R5, R6
     XOR R3, R2, xF
     XOR R3, R2, x0
     XOR R3, R2, x-3
-    ;XOR R3, R2, #16
+    XOR R3, R2, x-10
+    XOR R3, R2, #-16
+    XOR R3, R2, #15
     XOR R3, R2, #4
     XOR R3, R2, #0
     XOR R3, R2, #-4

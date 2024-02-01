@@ -33,7 +33,7 @@
 run    AND R5, R2, R1 ; this is the bit that the output needs to be
     AND R3, R3, R4 ; bit mask the output
     XOR R6, R5, R3 ; this will tell us if there is a overflow or not
-    RSHFL R6, R6, #7 ; move the overflow to the LSB
+    RSHFL R6, R6, #8 ; move the overflow to the LSB
     STB R6, R0, #3 ; store the overflow
     HALT
 inputs  .FILL x3100
