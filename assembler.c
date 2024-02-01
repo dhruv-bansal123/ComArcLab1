@@ -259,7 +259,7 @@ void jsr(FILE *outfile, char *Arg1, int current_address)
   {
     if (0 == strcmp(symbolTable[i].label, label))
     {
-      offset = (symbolTable[i].address - current_address) / 2 & 0x7FF;
+      offset = ((symbolTable[i].address - current_address) / 2) & 0x7FF;
       break;
     }
   }
@@ -301,7 +301,7 @@ void lshf(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
-  char amt = toNum(Arg3);
+  char amt = toNum(Arg3) & 0xF;
 
   int output = code << 12 | (dst << 9) | (src1 << 6) | amt;
   fprintf(outfile, "0x%.4X\n", output);
@@ -312,7 +312,7 @@ void rshfl(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
-  char amt = toNum(Arg3);
+  char amt = toNum(Arg3) & 0xF;
 
   int output = code << 12 | (dst << 9) | (src1 << 6) | 16 | amt;
   fprintf(outfile, "0x%.4X\n", output);
@@ -323,7 +323,7 @@ void rshfa(FILE *outfile, char *Arg1, char *Arg2, char *Arg3, char *Arg4)
   char code = 13;
   char dst = Arg1[1] - 48;
   char src1 = Arg2[1] - 48;
-  char amt = toNum(Arg3);
+  char amt = toNum(Arg3) & 0xF;
 
   int output = code << 12 | (dst << 9) | (src1 << 6) | 48 | amt;
   fprintf(outfile, "0x%.4X\n", output);
