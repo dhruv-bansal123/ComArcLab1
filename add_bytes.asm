@@ -37,6 +37,6 @@ run    AND R5, R2, R1 ; this is the bit that the output needs to be
     STB R6, R0, #3 ; store the overflow
     HALT
 inputs  .FILL x3100
-bitmask .FILL x80
+bitmask .FILL x0080
 
     .end
