@@ -592,10 +592,10 @@ int main(int argc, char *argv[])
         br(outfile, 1, 1, 1, lArg1, current_address);
         break; // d works
       case 28:
-        fprintf(outfile, "0x%.4X\n", toNum(lArg1));
+        fprintf(outfile, "0x%.4X\n", (toNum(lArg1) & 0xFFFF));
         break; // work
       case 29:
-        fprintf(outfile, "0x%.4X\n", toNum(lArg1));
+        fprintf(outfile, "0x%.4X\n", (toNum(lArg1) & 0xFFFF));
         break; // work
       case 30:
         end_found = 1;
